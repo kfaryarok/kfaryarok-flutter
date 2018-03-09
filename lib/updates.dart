@@ -1,7 +1,10 @@
+import 'dart:async';
+
 /// This is an API class containing stuff related to parsing updates from
 /// the server and representing the updates in code.
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 
 class Update {
@@ -27,12 +30,14 @@ class UpdateWidget extends StatelessWidget {
           // Container inside the card
           margin: const EdgeInsets.all(12.0),
           child: new Column(
+            textDirection: TextDirection.rtl,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               new Container(
                 child: new Text(
                   update.text,
                   style: const TextStyle(fontSize: 20.0),
+                  textDirection: TextDirection.rtl,
                 ),
               ),
               new Container(
@@ -40,6 +45,7 @@ class UpdateWidget extends StatelessWidget {
                 child: new Text(
                   formatClassString(update.classes),
                   style: const TextStyle(fontSize: 16.0),
+                  textDirection: TextDirection.rtl,
                 ),
               ),
             ],
@@ -51,29 +57,29 @@ class UpdateWidget extends StatelessWidget {
 }
 
 List<Update> getTestUpdates() => [
-      new Update(text: "test1", classes: ["d2", "e3"]),
-      new Update(text: "test2", classes: ["d3", "d2"]),
-      new Update(text: "test3", classes: ["d4", "t3"]),
-      new Update(text: "test4", classes: ["d2", "e3"]),
-      new Update(text: "test5", classes: ["d3", "d1"]),
+      new Update(text: "עדכון 1", classes: ["ט2", "י3"]),
+      new Update(text: "עדכון 2", classes: ["ט3", "ט2"]),
+      new Update(text: "עדכון 3", classes: ["ט4", "ט3"]),
+      new Update(text: "עדכון 4", classes: ["ט2", "י3"]),
+      new Update(text: "עדכון 5", classes: ["ט3", "ט1"]),
       new Update(
           text:
-              "test6 but this is a very long test because I need to see what happens when there is a lot of text and a lot of classes",
+              "עדכון 6 ארוך כי צריך לבדוק מה קורה כשיש עדכון מאוד ארוך ואיך הטקסט מופיע על המסך כשזה מופיע כי צריך שזה ירד למטה",
           classes: [
-            "d3",
-            "d1",
-            "e3",
-            "a1",
-            "b2",
-            "c3",
-            "f5",
-            "g4",
-            "p9",
-            "d2",
-            "o9",
-            "o2",
-            "h2",
-            "i2"
+            "ט3",
+            "ט1",
+            "י3",
+            "ח1",
+            "יא2",
+            "יב3",
+            "י5",
+            "י4",
+            "י9",
+            "ט2",
+            "ז9",
+            "ז2",
+            "ח2",
+            "יב2"
           ]),
     ];
 
@@ -116,4 +122,10 @@ String formatClassString(List<String> classes, {String userClass: ""}) {
   }
 
   return classBuilder.toString();
+}
+
+Future<String> fetchFromServer() async {
+  var request = new Request("GET", new Uri(scheme: "https", host: "tbscdev.xyz", path: "update.json"));
+  StreamedResponse response = await request.send();
+  return response.toString();
 }
