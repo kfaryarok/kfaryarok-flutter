@@ -27,6 +27,7 @@ class KfarYarokHomeState extends State<KfarYarokHome> {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text('KfarYarok-Flutter'),
+        actions: <Widget>[buildBarMenu()],
       ),
       body: new Container(
         margin: new EdgeInsets.symmetric(horizontal: 8.0),
@@ -56,4 +57,40 @@ class KfarYarokHomeState extends State<KfarYarokHome> {
       ),
     );
   }
+
+  /// Creates the appbar's menu button and populates it.
+  PopupMenuButton buildBarMenu() {
+    return new PopupMenuButton(
+      icon: new Icon(Icons.more_vert),
+      itemBuilder: (_) => <PopupMenuEntry<MenuValue>>[
+            // Settings menu button
+            new PopupMenuItem<MenuValue>(
+              value: MenuValue.settings,
+              child: new Text(
+                "הגדרות",
+                textDirection: TextDirection.rtl,
+              ),
+            ),
+            // About menu button
+            new PopupMenuItem<MenuValue>(
+              value: MenuValue.about,
+              child: new Text(
+                "אודות",
+                textDirection: TextDirection.rtl,
+              ),
+            ),
+          ],
+      onSelected: (value) {
+        switch (value) {
+          case MenuValue.settings:
+            break;
+          case MenuValue.about:
+            break;
+        }
+      },
+    );
+  }
 }
+
+/// Possible items selected in the appbar's menu
+enum MenuValue { settings, about }
