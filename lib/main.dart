@@ -9,7 +9,7 @@ class KfarYarokApp extends StatelessWidget {
     return new MaterialApp(
       title: 'KfarYarok-Flutter',
       theme: new ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
       home: new KfarYarokHome(),
     );
@@ -25,22 +25,30 @@ class KfarYarokHomeState extends State<KfarYarokHome> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      // AppBar
       appBar: new AppBar(
         title: new Text('KfarYarok-Flutter'),
         actions: <Widget>[buildBarMenu()],
       ),
+
+      // Body of the app
       body: new Container(
         margin: new EdgeInsets.symmetric(horizontal: 8.0),
         child: new Column(
           children: <Widget>[
+            // Text at the top that shows when updates were last synced
             new Container(
               margin: const EdgeInsetsDirectional.only(top: 16.0),
               child: new Text("\$lastupdated"),
             ),
+
+            // Divider between synced text and the updates themselves
             new Container(
               margin: const EdgeInsetsDirectional.only(top: 16.0),
               child: new Divider(color: Colors.grey[600], height: 1.0),
             ),
+
+            // ListView showing the updates
             new Expanded(
               child: new ListView.builder(
                 itemCount: getTestUpdates().length,
@@ -71,6 +79,7 @@ class KfarYarokHomeState extends State<KfarYarokHome> {
                 textDirection: TextDirection.rtl,
               ),
             ),
+
             // About menu button
             new PopupMenuItem<MenuValue>(
               value: MenuValue.about,
