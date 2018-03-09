@@ -124,8 +124,14 @@ String formatClassString(List<String> classes, {String userClass: ""}) {
   return classBuilder.toString();
 }
 
-Future<String> fetchFromServer() async {
-  var request = new Request("GET", new Uri(scheme: "https", host: "tbscdev.xyz", path: "update.json"));
+/// Fetches the specified server URL.
+/// Use this and not http.read() because this function supports Hebrew
+/// characters, unlike http.read().
+/// This function doesn't handle any exceptions!
+/// TODO: Use an actual update server, and not a fake test server
+Future<String> fetchFromServerAsync() async {
+  var request =
+      new Request("GET", Uri.parse("https://tbscdev.xyz/update.json"));
   StreamedResponse response = await request.send();
-  return response.toString();
+  return response.stream.bytesToString();
 }
