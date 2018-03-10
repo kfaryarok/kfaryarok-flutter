@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'updates.dart';
+import 'settings.dart' as settings;
+import 'about.dart' as about;
 
 void main() => runApp(new KfarYarokApp());
 
@@ -12,6 +14,10 @@ class KfarYarokApp extends StatelessWidget {
         primarySwatch: Colors.green,
       ),
       home: new KfarYarokHome(),
+      routes: <String, WidgetBuilder>{
+        "/settings": (_) => new settings.SettingsScreen(),
+        "/about": (_) => new about.AboutScreen(),
+      },
     );
   }
 }
@@ -48,26 +54,29 @@ class KfarYarokHomeState extends State<KfarYarokHome> {
       ),
 
       // Body of the app
-      body: new Container(
-        margin: new EdgeInsets.symmetric(horizontal: 8.0),
-        child: new Column(
-          children: <Widget>[
-            // Text at the top that shows when updates were last synced
-            new Container(
-              margin: const EdgeInsetsDirectional.only(top: 16.0),
-              child: new Text("\$lastupdated"),
-            ),
+      body: new Directionality(
+        textDirection: TextDirection.rtl,
+        child: new Container(
+          margin: new EdgeInsets.symmetric(horizontal: 8.0),
+          child: new Column(
+            children: <Widget>[
+              // Text at the top that shows when updates were last synced
+              new Container(
+                margin: const EdgeInsetsDirectional.only(top: 16.0),
+                child: new Text("\$lastupdated"),
+              ),
 
-            // Divider between synced text and the updates themselves
-            new Container(
-              margin: const EdgeInsetsDirectional.only(top: 16.0),
-              child: new Divider(color: Colors.grey[600], height: 1.0),
-            ),
+              // Divider between synced text and the updates themselves
+              new Container(
+                margin: const EdgeInsetsDirectional.only(top: 16.0),
+                child: new Divider(color: Colors.grey[600], height: 1.0),
+              ),
 
-            // Body content
-            // a ListView containing updates or a progress bar if loading
-            buildBodyContent(),
-          ],
+              // Body content
+              // a ListView containing updates or a progress bar if loading
+              buildBodyContent(),
+            ],
+          ),
         ),
       ),
     );
@@ -129,8 +138,10 @@ class KfarYarokHomeState extends State<KfarYarokHome> {
       onSelected: (value) {
         switch (value) {
           case MenuValue.settings:
+            Navigator.of(context).pushNamed("/settings");
             break;
           case MenuValue.about:
+            Navigator.of(context).pushNamed("/about");
             break;
         }
       },
