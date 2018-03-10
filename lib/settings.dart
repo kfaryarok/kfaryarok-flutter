@@ -8,9 +8,12 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("הגדרות"),
+    return new Directionality(
+      textDirection: TextDirection.rtl,
+      child: new Scaffold(
+        appBar: new AppBar(
+          title: new Text("הגדרות"),
+        ),
       ),
     );
   }

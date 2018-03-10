@@ -46,17 +46,17 @@ class KfarYarokHomeState extends State<KfarYarokHome> {
   @override
   Widget build(BuildContext context) {
     syncUpdates();
-    return new Scaffold(
-      // AppBar
-      appBar: new AppBar(
-        title: new Text('KfarYarok-Flutter'),
-        actions: <Widget>[buildBarMenu()],
-      ),
+    return new Directionality(
+      textDirection: TextDirection.rtl,
+      child: new Scaffold(
+        // AppBar
+        appBar: new AppBar(
+          title: new Text('KfarYarok-Flutter'),
+          actions: <Widget>[buildBarMenu()],
+        ),
 
-      // Body of the app
-      body: new Directionality(
-        textDirection: TextDirection.rtl,
-        child: new Container(
+        // Body of the app
+        body: new Container(
           margin: new EdgeInsets.symmetric(horizontal: 8.0),
           child: new Column(
             children: <Widget>[
