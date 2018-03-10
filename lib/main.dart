@@ -22,8 +22,24 @@ class KfarYarokHome extends StatefulWidget {
 }
 
 class KfarYarokHomeState extends State<KfarYarokHome> {
+  List<Update> _updatesListViewItems;
+  List<Update> get updatesListViewItems => _updatesListViewItems;
+  set updatesListViewItems(List<Update> updates) => setState(() {
+        _updatesListViewItems = updates;
+      });
+  bool get updatesListViewItemsSet => updatesListViewItems != null;
+
+  /// Gets updates and assigns them to the field.
+  /// If already set doesn't do anything.
+  syncUpdates() async {
+    if (updatesListViewItems == null) {
+      updatesListViewItems = await getUpdates();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    syncUpdates();
     return new Scaffold(
       // AppBar
       appBar: new AppBar(
@@ -48,28 +64,49 @@ class KfarYarokHomeState extends State<KfarYarokHome> {
               child: new Divider(color: Colors.grey[600], height: 1.0),
             ),
 
-            // ListView showing the updates
-            new Expanded(
-              child: new ListView.builder(
-                itemCount: getTestUpdates().length,
-                itemBuilder: (_, int index) {
-                  return new UpdateWidget(
-                    update: getTestUpdates()[index],
-                    margin: const EdgeInsetsDirectional.only(top: 4.0),
-                  );
-                },
-              ),
-            ),
+            // Body content
+            // a ListView containing updates or a progress bar if loading
+            buildBodyContent(),
           ],
         ),
       ),
     );
   }
 
+  /// Creates either the main ListView or a [CircularProgressIndicator] when
+  /// it hasn't finished getting updates.
+  Widget buildBodyContent() {
+    // Checking if it has finished loading is as simple as checking if the
+    // update list is null
+    return updatesListViewItemsSet
+        ? new Expanded(
+            // Update list isn't null, so we can show the ListView
+            child: new ListView.builder(
+              // Returns .length if updatesListViewItems isn't null, and if it
+              // is returns 0 instead of updstesListViewItems (because of ??)
+              itemCount: updatesListViewItems?.length ?? 0,
+              itemBuilder: (_, int index) {
+                return new UpdateWidget(
+                  update: updatesListViewItems[index],
+                  margin: const EdgeInsetsDirectional.only(top: 4.0),
+                );
+              },
+            ),
+          )
+        : new Container(
+            margin: const EdgeInsetsDirectional.only(top: 16.0),
+            child: new CircularProgressIndicator(
+              // Update list is null, so we need to show the progress bar
+              value: null,
+            ),
+          );
+  }
+
   /// Creates the appbar's menu button and populates it.
   PopupMenuButton buildBarMenu() {
     return new PopupMenuButton(
       icon: new Icon(Icons.more_vert),
+      tooltip: "אפשרויות",
       itemBuilder: (_) => <PopupMenuEntry<MenuValue>>[
             // Settings menu button
             new PopupMenuItem<MenuValue>(

@@ -1,11 +1,12 @@
 import 'dart:async';
-
-/// This is an API class containing stuff related to parsing updates from
-/// the server and representing the updates in code.
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
+
+/// This is an API file containing stuff related to parsing updates from
+/// the server and representing the updates in code.
 
 class Update {
   final String text;
@@ -87,8 +88,15 @@ List<Update> getTestUpdates() => [
 /// list, comma separated. If the list contains the user's class, as defined
 /// in userClass, it will be the first class in the formatted string, however
 /// the list doesn't have to include the user's class, and will handle it fine.
+/// If the list is null/empty, it assumes that means it's a global update and
+/// will return a fitting classes string for global updates.
 /// This is a direct port of the UpdateHelper method in v2.
 String formatClassString(List<String> classes, {String userClass: ""}) {
+  // Classes are null/empty, return global update string
+  if (classes == null || classes == []) {
+    return "הודעה כללית";
+  }
+
   StringBuffer classBuilder = new StringBuffer();
 
   // Used to know if a class was already added to the string, and if so
@@ -124,6 +132,24 @@ String formatClassString(List<String> classes, {String userClass: ""}) {
   return classBuilder.toString();
 }
 
+/// All-in-One function for fetching, decoding, parsing and filtering updates.
+/// Gets the updates from the server, decodes the JSON, parses it to [Update]
+/// objects and filters out updates that aren't relevant to the user.
+/// If fetching data fails, it returns null.
+Future<List<Update>> getUpdates() async {
+  String data;
+  try {
+    data = await fetchFromServerAsync();
+  } on Exception catch (e) {
+    print(e);
+    return null;
+  }
+  var decodedJson = decodeJson(data);
+  List<Update> updates = parseJsonToUpdates(decodedJson);
+  List<Update> filteredUpdates = filterUpdates(updates);
+  return filteredUpdates;
+}
+
 /// Fetches the specified server URL.
 /// Use this and not http.read() because this function supports Hebrew
 /// characters, unlike http.read().
@@ -134,4 +160,52 @@ Future<String> fetchFromServerAsync() async {
       new Request("GET", Uri.parse("https://tbscdev.xyz/update.json"));
   StreamedResponse response = await request.send();
   return response.stream.bytesToString();
+}
+
+/// Use in conjunction with [fetchFromServerAsync] to decode the returned
+/// JSON string.
+/// Use this and not directly access [JSON] incase how decoding works ever
+/// changes, so it'll be easy to update everywhere.
+/// Returns a dynamic variable ([List], [Map], [Object]) based on the JSON.
+dynamic decodeJson(String data) {
+  return JSON.decode(data);
+}
+
+/// Parses the JSON to a list of [Update]s.
+/// Starts parsing without checking according to the specification at
+/// https://github.com/kfaryarok/kfaryarok-android/blob/master/JSONDATA.md.
+List<Update> parseJsonToUpdates(dynamic decodedJson) {
+  List<Update> result = <Update>[];
+
+  List<dynamic> globalUpdates = decodedJson["global_updates"];
+  List<dynamic> updates = decodedJson["updates"];
+
+  // Go through the entries in the global_updates and updates JSON arrays and
+  // add each to the parsed update objects list
+  globalUpdates.forEach(
+    (s) => result.add(new Update(text: s["text"])),
+  );
+  updates.forEach(
+    (s) => result.add(new Update(text: s["text"], classes: s["classes"])),
+  );
+
+  return result;
+}
+
+/// Returns all updates that are global or affect the user's class.
+List<Update> filterUpdates(List<Update> updates, {String userClass: ""}) {
+  // No user class was given, therefore no filter can even be done.
+  if (userClass == "") {
+    return updates;
+  }
+
+  // Removes all updates that aren't global and don't include the user's class
+  updates.removeWhere(
+    (update) =>
+        update.classes != null &&
+        update.classes != [] &&
+        !update.classes.contains(userClass),
+  );
+
+  return updates;
 }
